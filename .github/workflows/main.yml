@@ -11,22 +11,18 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Pandoc and PDF Engine
+      - name: Convert via Pandoc Docker
+        # Mapping the workspace to /data allows the container to see your files
+        # weasyprint handles GitHub-flavored Markdown (GFM) tables and images reliably
         run: |
-          sudo apt-get update
-          sudo apt-get install -y pandoc wkhtmltopdf xvfb
-
-      - name: Run Conversion
-        # --strip-metadata ignores broken YAML headers in the source MD files
-        # --metadata title sets a manual title for the generated PDF
-        run: |
-          xvfb-run pandoc [0-9]*/Readme.md Readme.md \
+          docker run --rm -v "$(pwd):/data" pandoc/extra \
+          [0-9]*/Readme.md Readme.md \
           -o system_design_notes.pdf \
           --metadata title="System Design Notes" \
           --strip-metadata \
           --toc \
           --toc-depth=2 \
-          --pdf-engine=wkhtmltopdf
+          --pdf-engine=weasyprint
 
       - name: Upload PDF
         uses: actions/upload-artifact@v4
