@@ -12,8 +12,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Convert via Pandoc Docker
-        # Mapping the workspace to /data allows the container to see your files
-        # weasyprint handles GitHub-flavored Markdown (GFM) tables and images reliably
+        # Mapping the workspace to /data allows the container to access your files.
+        # --strip-metadata prevents the YAML parse exception you encountered.
         run: |
           docker run --rm -v "$(pwd):/data" pandoc/extra \
           [0-9]*/Readme.md Readme.md \
