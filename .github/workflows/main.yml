@@ -1,20 +1,28 @@
 name: Convert MD to PDF
-on: [workflow_dispatch] # Allows you to run it manually
+on: [workflow_dispatch]
 
 jobs:
   convert:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Pandoc and Dependencies
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Pandoc and PDF Engine
         run: |
           sudo apt-get update
-          sudo apt-get install -y pandoc wkhtmltopdf
+          sudo apt-get install -y pandoc wkhtmltopdf xvfb
+
       - name: Run Conversion
+        # xvfb-run is used to provide a virtual display for wkhtmltopdf
         run: |
-          pandoc [0-9]*/Readme.md Readme.md -o system_design_notes.pdf --toc --pdf-engine=wkhtmltopdf
+          xvfb-run pandoc [0-9]*/Readme.md Readme.md \
+          -o system_design_notes.pdf \
+          --toc \
+          --pdf-engine=wkhtmltopdf
+
       - name: Upload PDF
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: system-design-pdf
           path: system_design_notes.pdf
