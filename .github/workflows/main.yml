@@ -12,14 +12,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Convert via Pandoc Docker
-        # Mapping the workspace to /data allows the container to access your files.
-        # --strip-metadata prevents the YAML parse exception you encountered.
+        # 1. -v "$(pwd):/data" maps repo root to container workspace
+        # 2. -f markdown-yaml_metadata_block ignores broken headers in source MDs
+        # 3. [0-9]*/Readme.md ensures chapters are merged in numerical order
         run: |
           docker run --rm -v "$(pwd):/data" pandoc/extra \
+          -f markdown-yaml_metadata_block \
           [0-9]*/Readme.md Readme.md \
           -o system_design_notes.pdf \
           --metadata title="System Design Notes" \
-          --strip-metadata \
           --toc \
           --toc-depth=2 \
           --pdf-engine=weasyprint
